@@ -1,3 +1,8 @@
+
+
+
+
+// Updated slot_script.js with score fix and leaderboard
 const symbols = ["🍒", "🍋", "🍇", "🍉", "🍓", "7️⃣"];
 const spinButton = document.getElementById("spin");
 const depositButton = document.getElementById("deposit");
@@ -9,6 +14,7 @@ const balanceDisplay = document.getElementById("balance");
 const winningsDisplay = document.getElementById("totalWinnings");
 const lossesDisplay = document.getElementById("totalLosses");
 const message = document.getElementById("message");
+const leaderboardDiv = document.getElementById("leaderboard");
 
 const columns = [
   document.getElementById("col1"),
@@ -61,6 +67,13 @@ function updateStats() {
   totalSpins.textContent = spinsDone;
 }
 
+function updateLeaderboard() {
+  const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+  leaderboardDiv.innerHTML = "<h3>Leaderboard</h3><ol>" +
+    leaderboard.map(entry => `<li>${entry.name}: Score ${entry.score.toFixed(1)}/10 | Winnings $${entry.winnings}</li>`).join('') +
+    "</ol>";
+}
+
 spinButton.addEventListener("click", async () => {
   const betInput = document.getElementById("betAmount");
   let betAmount = parseInt(betInput.value);
@@ -73,32 +86,23 @@ spinButton.addEventListener("click", async () => {
     message.textContent = "Maximum bet is $500!";
     return;
   }
-
   if (spinsDone >= maxSpins) {
     message.textContent = "No more spins left!";
     return;
   }
-
   if (balance < betAmount) {
     message.textContent = "Insufficient balance to spin!";
     return;
   }
 
+  spinButton.disabled = true;
   message.textContent = "Spinning...";
   balance -= betAmount;
   spinsDone++;
 
-  const results = [
-    [symbols[Math.floor(Math.random() * symbols.length)],
-     symbols[Math.floor(Math.random() * symbols.length)],
-     symbols[Math.floor(Math.random() * symbols.length)]],
-    [symbols[Math.floor(Math.random() * symbols.length)],
-     symbols[Math.floor(Math.random() * symbols.length)],
-     symbols[Math.floor(Math.random() * symbols.length)]],
-    [symbols[Math.floor(Math.random() * symbols.length)],
-     symbols[Math.floor(Math.random() * symbols.length)],
-     symbols[Math.floor(Math.random() * symbols.length)]]
-  ];
+  const results = Array.from({ length: 3 }, () =>
+    Array.from({ length: 3 }, () => symbols[Math.floor(Math.random() * symbols.length)])
+  );
 
   await Promise.all([
     spinColumn(columns[0], results[0], 100),
@@ -108,8 +112,8 @@ spinButton.addEventListener("click", async () => {
 
   const centerRow = [results[0][1], results[1][1], results[2][1]];
 
-  if (centerRow[0] === centerRow[1] && centerRow[1] === centerRow[2]) {
-    let jackpotReward = betAmount * 5;
+  if (centerRow.every(sym => sym === centerRow[0])) {
+    const jackpotReward = betAmount * 5;
     message.textContent = `🎉 JACKPOT! 🎉 +$${jackpotReward}`;
     jackpots.textContent = parseInt(jackpots.textContent) + 1;
     balance += jackpotReward;
@@ -120,8 +124,22 @@ spinButton.addEventListener("click", async () => {
   }
 
   updateStats();
-});
 
+  if (spinsDone >= maxSpins || balance < 200) {
+    const score = Math.min((balance / 1000) * 10, 10);
+    message.textContent += ` Game Over! Score: ${score.toFixed(1)}/10`;
+    spinButton.disabled = true;
+
+    const playerName = prompt("Enter your name for the leaderboard:") || "Anonymous";
+    const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+    leaderboard.push({ name: playerName, score, winnings });
+    leaderboard.sort((a, b) => b.score - a.score);
+    localStorage.setItem("leaderboard", JSON.stringify(leaderboard.slice(0, 10)));
+    updateLeaderboard();
+  } else {
+    spinButton.disabled = false;
+  }
+});
 
 depositButton.addEventListener("click", () => {
   if (depositCount >= 3) {
@@ -139,7 +157,9 @@ withdrawButton.addEventListener("click", () => {
     message.textContent = "Finish all 30 spins before withdrawing!";
     return;
   }
-
-  const score = Math.floor(balance / 100);
-  message.textContent = `You scored ${score}/10. Final Balance: $${balance}`;
+  const score = Math.min((balance / 1000) * 10, 10);
+  message.textContent = `You scored ${score.toFixed(1)}/10. Final Balance: $${balance}`;
 });
+
+updateStats();
+updateLeaderboard();
