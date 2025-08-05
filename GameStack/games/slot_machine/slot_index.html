@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Slot Machine</title>
+  <link rel="stylesheet" href="slot_style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <h1>Slot Machine</h1>
+    <div class="slot-machine">
+      <div class="reel-column" id="col1"></div>
+      <div class="reel-column" id="col2"></div>
+      <div class="reel-column" id="col3"></div>
+    </div>
+    <div class="bet-controls">
+     <label for="betAmount">Bet Amount ($): </label>
+     <input type="number" id="betAmount" min="200" value="200" step="10" />
+     <button id="spin">SPIN</button>
+    </div>
+    <button id="deposit">DEPOSIT</button>
+    <button id="withdraw">WITHDRAW</button>
+
+    <div id="message"></div>
+
+    <div class="stats">
+      <p>Total Spins: <span id="totalSpins">0</span></p>
+      <p>Jackpots: <span id="jackpots">0</span></p>
+      <p>Balance: $<span id="balance">10000</span></p>
+      <p>Winnings: $<span id="totalWinnings">0</span></p>
+      <p>Losses: $<span id="totalLosses">0</span></p>
+    </div>
+  </div>
+  <script src="slot_script.js"></script>
+</body>
+</html>
