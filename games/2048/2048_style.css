@@ -1,0 +1,71 @@
+body {
+    background-color: black;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 20px;
+    color: gold;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+#score {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: gold;
+}
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-template-rows: repeat(4, 100px);
+    gap: 5px;
+    justify-content: center;
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    background-color: #333;
+    border: 2px solid gold;
+    color: black;
+}
+
+#new-game-btn {
+    background: gold;
+    color: black;
+    font-size: 16px;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    margin: 20px auto 10px auto;
+}
+#new-game-btn:hover {
+    background: orange;
+}
+
+#leaderboard {
+    text-align: center;
+    color: white;
+    margin-top: 20px;
+}
+
+
+.cell[data-value="2"]    { background-color: #eee4da; }
+.cell[data-value="4"]    { background-color: #ede0c8; }
+.cell[data-value="8"]    { background-color: #f2b179; }
+.cell[data-value="16"]   { background-color: #f59563; }
+.cell[data-value="32"]   { background-color: #f67c5f; }
+.cell[data-value="64"]   { background-color: #f65e3b; }
+.cell[data-value="128"]  { background-color: #edcf72; }
+.cell[data-value="256"]  { background-color: #edcc61; }
+.cell[data-value="512"]  { background-color: #edc850; }
+.cell[data-value="1024"] { background-color: #edc53f; }
+.cell[data-value="2048"] { background-color: #edc22e; color: white; }

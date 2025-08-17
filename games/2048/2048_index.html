@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>2048 Game</title>
+    <link rel="stylesheet" href="2048_style.css">
+</head>
+<body>
+    <h1>2048 Game</h1>
+    <div id="score">0</div>
+    <div id="game-board" class="board"></div>
+    <button id="new-game-btn">New Game</button>
+
+    <div id="leaderboard">
+        <h3>Leaderboard</h3>
+        <div id="leaderboard-entries"></div>
+    </div>
+
+    <!-- Firebase v8 scripts (must come before your config and JS) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+      // Firebase config
+      const firebaseConfig = {
+        apiKey: "ATzaSyD0mpb48AtCD2eESKKhnqNUkKXf5njAXtU",
+        authDomain: "gamestack-102f5.firebaseapp.com",
+        databaseURL: "https://gamestack-102f5-default-rtdb.firebaseio.com",
+        projectId: "gamestack-102f5",
+        storageBucket: "gamestack-102f5.appspot.com",
+        messagingSenderId: "666021009105",
+        appId: "1:666021009105:web:3d6e120fd4c8e1daaa17f0",
+        measurementId: "G-24MXCKWBGT"
+      };
+      firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <script src="2048_script.js"></script>
+</body>
+</html>
