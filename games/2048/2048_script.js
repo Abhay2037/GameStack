@@ -188,7 +188,7 @@ function saveScoreToFirebase(score, highestTile) {
 }
 
 function loadLeaderboard() {
-    leaderboardRef.once("value", snapshot => {
+    leaderboardRef.on("value", snapshot => { // <--- Corrected
         const data = [];
         snapshot.forEach(childSnapshot => {
             data.push(childSnapshot.val());
