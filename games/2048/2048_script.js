@@ -1,14 +1,35 @@
 const gridSize = 4;
 let board = [];
 let score = 0;
+let userId = null; // Variable to store the user's ID
 
 const gameBoard = document.getElementById("game-board");
 const scoreDisplay = document.getElementById("score");
+const newGameBtn = document.getElementById("new-game-btn");
 
 // Firebase setup
 const leaderboardRef = firebase.database().ref("leaderboard_2048");
 
-// Initialize game
+// --- Main Game Logic ---
+
+// This function will be called only after Firebase auth is successful
+function setupGame() {
+    // Attach event listeners now that we are ready
+    document.addEventListener("keydown", handleKeyPress);
+    newGameBtn.addEventListener("click", initGame);
+
+    // Initial game start and leaderboard load
+    initGame();
+    loadLeaderboard();
+}
+
+function handleKeyPress(e) {
+    if (e.key === "ArrowLeft") handleMove("left");
+    if (e.key === "ArrowRight") handleMove("right");
+    if (e.key === "ArrowUp") handleMove("up");
+    if (e.key === "ArrowDown") handleMove("down");
+}
+
 function initGame() {
     board = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
     score = 0;
@@ -40,7 +61,8 @@ function updateBoard() {
             cell.classList.add("cell");
             if (board[r][c] !== 0) {
                 cell.textContent = board[r][c];
-                cell.style.background = getTileColor(board[r][c]);
+                // Use the data-value attribute to apply styles from CSS
+                cell.setAttribute('data-value', board[r][c]);
             }
             gameBoard.appendChild(cell);
         }
@@ -48,25 +70,8 @@ function updateBoard() {
     scoreDisplay.textContent = score;
 }
 
-function getTileColor(value) {
-    const colors = {
-        2: "#eee4da",
-        4: "#ede0c8",
-        8: "#f2b179",
-        16: "#f59563",
-        32: "#f67c5f",
-        64: "#f65e3b",
-        128: "#edcf72",
-        256: "#edcc61",
-        512: "#edc850",
-        1024: "#edc53f",
-        2048: "#edc22e"
-    };
-    return colors[value] || "#3c3a32";
-}
-
 function slide(row) {
-    let arr = row.filter(val => val !== 0);
+    let arr = row.filter(val => val);
     for (let i = 0; i < arr.length - 1; i++) {
         if (arr[i] === arr[i + 1]) {
             arr[i] *= 2;
@@ -74,90 +79,55 @@ function slide(row) {
             arr[i + 1] = 0;
         }
     }
-    arr = arr.filter(val => val !== 0);
+    arr = arr.filter(val => val);
     while (arr.length < gridSize) {
         arr.push(0);
     }
     return arr;
 }
 
-function moveLeft() {
-    let moved = false;
-    for (let r = 0; r < gridSize; r++) {
-        let newRow = slide(board[r]);
-        if (board[r].toString() !== newRow.toString()) moved = true;
-        board[r] = newRow;
-    }
-    return moved;
-}
-
-function moveRight() {
-    let moved = false;
-    for (let r = 0; r < gridSize; r++) {
-        let row = board[r].slice().reverse();
-        let newRow = slide(row).reverse();
-        if (board[r].toString() !== newRow.toString()) moved = true;
-        board[r] = newRow;
-    }
-    return moved;
-}
-
-function moveUp() {
-    let moved = false;
-    for (let c = 0; c < gridSize; c++) {
-        let col = [];
-        for (let r = 0; r < gridSize; r++) col.push(board[r][c]);
-        let newCol = slide(col);
-        for (let r = 0; r < gridSize; r++) {
-            if (board[r][c] !== newCol[r]) moved = true;
-            board[r][c] = newCol[r];
+function move(direction) {
+    let boardBefore = JSON.stringify(board);
+    if (direction === "left") {
+        for (let r = 0; r < gridSize; r++) board[r] = slide(board[r]);
+    } else if (direction === "right") {
+        for (let r = 0; r < gridSize; r++) board[r] = slide(board[r].reverse()).reverse();
+    } else if (direction === "up") {
+        for (let c = 0; c < gridSize; c++) {
+            let col = [board[0][c], board[1][c], board[2][c], board[3][c]];
+            let newCol = slide(col);
+            for (let r = 0; r < gridSize; r++) board[r][c] = newCol[r];
+        }
+    } else if (direction === "down") {
+        for (let c = 0; c < gridSize; c++) {
+            let col = [board[0][c], board[1][c], board[2][c], board[3][c]];
+            let newCol = slide(col.reverse()).reverse();
+            for (let r = 0; r < gridSize; r++) board[r][c] = newCol[r];
         }
     }
-    return moved;
-}
-
-function moveDown() {
-    let moved = false;
-    for (let c = 0; c < gridSize; c++) {
-        let col = [];
-        for (let r = 0; r < gridSize; r++) col.push(board[r][c]);
-        let newCol = slide(col.reverse()).reverse();
-        for (let r = 0; r < gridSize; r++) {
-            if (board[r][c] !== newCol[r]) moved = true;
-            board[r][c] = newCol[r];
-        }
-    }
-    return moved;
+    return JSON.stringify(board) !== boardBefore;
 }
 
 function handleMove(direction) {
-    let moved = false;
-    if (direction === "left") moved = moveLeft();
-    if (direction === "right") moved = moveRight();
-    if (direction === "up") moved = moveUp();
-    if (direction === "down") moved = moveDown();
-
-    if (moved) {
+    if (move(direction)) {
         addNewTile();
         updateBoard();
         if (isGameOver()) {
-            alert("Game Over!");
+            // Use setTimeout to allow the board to update before the alert
+            setTimeout(() => {
+                alert("Game Over!");
+                const highestTile = getHighestTile();
+                saveScoreToFirebase(score, highestTile);
+            }, 500);
         }
     }
 }
 
 function getHighestTile() {
-    let highest = 0;
-    for (let r = 0; r < gridSize; r++) {
-        for (let c = 0; c < gridSize; c++) {
-            if (board[r][c] > highest) highest = board[r][c];
-        }
-    }
-    return highest;
+    return Math.max(...board.flat());
 }
 
 function isGameOver() {
-    // Check if no moves are possible
     for (let r = 0; r < gridSize; r++) {
         for (let c = 0; c < gridSize; c++) {
             if (board[r][c] === 0) return false;
@@ -165,16 +135,18 @@ function isGameOver() {
             if (r < gridSize - 1 && board[r][c] === board[r + 1][c]) return false;
         }
     }
-    const highestTile = getHighestTile();
-    saveScoreToFirebase(score, highestTile);
-    loadLeaderboard();
     return true;
 }
 
-// ------------------- Leaderboard Functions -------------------
+// --- Leaderboard Functions ---
 
 function saveScoreToFirebase(score, highestTile) {
-    let playerName = prompt("Enter your name:") || "";
+    if (!userId) {
+      console.error("User not authenticated, cannot save score.");
+      return;
+    }
+
+    let playerName = prompt("Game Over! Enter your name for the leaderboard:") || "";
     if (playerName.trim() === "") {
         playerName = "Anonymous" + Math.floor(1000 + Math.random() * 9000);
     }
@@ -183,17 +155,23 @@ function saveScoreToFirebase(score, highestTile) {
         name: playerName,
         score: score,
         highestTile: highestTile,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        userId: userId
+    }).then(() => {
+        console.log("Score saved successfully!");
+    }).catch(error => {
+        console.error("Error saving score: ", error);
     });
 }
 
 function loadLeaderboard() {
-    leaderboardRef.on("value", snapshot => { // <--- Corrected
+    leaderboardRef.orderByChild("highestTile").limitToLast(10).on("value", snapshot => {
         const data = [];
         snapshot.forEach(childSnapshot => {
             data.push(childSnapshot.val());
         });
 
+        // Sort descending: by highest tile first, then by score
         data.sort((a, b) => {
             if (b.highestTile === a.highestTile) {
                 return b.score - a.score;
@@ -202,28 +180,33 @@ function loadLeaderboard() {
         });
 
         const leaderboardEl = document.getElementById("leaderboard-entries");
-        leaderboardEl.innerHTML = "";
-        data.slice(0, 10).forEach((entry, index) => {
-            leaderboardEl.innerHTML += `
-                <p>${index + 1}. ${entry.name} - Tile: ${entry.highestTile} | Score: ${entry.score}</p>
-            `;
+        leaderboardEl.innerHTML = ""; // Clear previous entries
+
+        data.forEach((entry, index) => {
+            // Create a new paragraph element
+            const p = document.createElement("p");
+
+            // Set its content as plain text. This is the security fix!
+            p.textContent = `${index + 1}. ${entry.name} - Tile: ${entry.highestTile} | Score: ${entry.score}`;
+
+            // Add the safe element to the page
+            leaderboardEl.appendChild(p);
         });
     });
 }
 
-// ------------------- Event Listeners -------------------
+// --- Authentication and Initialization ---
 
-document.addEventListener("keydown", e => {
-    if (e.key === "ArrowLeft") handleMove("left");
-    if (e.key === "ArrowRight") handleMove("right");
-    if (e.key === "ArrowUp") handleMove("up");
-    if (e.key === "ArrowDown") handleMove("down");
-});
-
-document.getElementById("new-game-btn").addEventListener("click", () => {
-    initGame();
-});
-
-// Init
-initGame();
-loadLeaderboard();
+// Authenticate the user anonymously FIRST
+firebase.auth().signInAnonymously()
+  .then((userCredential) => {
+    userId = userCredential.user.uid;
+    console.log("User authenticated with ID:", userId);
+    // Now that we are authenticated, set up and start the game
+    setupGame();
+  })
+  .catch((error) => {
+    console.error("Authentication failed:", error);
+    // Let the user know there was a problem
+    alert("Could not connect to the leaderboard service. Please refresh the page.");
+  });

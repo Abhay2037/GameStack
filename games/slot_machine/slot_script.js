@@ -1,7 +1,3 @@
-
-
-
-
 // Updated slot_script.js with score fix and leaderboard
 const symbols = ["🍒", "🍋", "🍇", "🍉", "🍓", "7️⃣"];
 const spinButton = document.getElementById("spin");
@@ -66,12 +62,29 @@ function updateStats() {
   lossesDisplay.textContent = losses;
   totalSpins.textContent = spinsDone;
 }
-
 function updateLeaderboard() {
   const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
-  leaderboardDiv.innerHTML = "<h3>Leaderboard</h3><ol>" +
-    leaderboard.map(entry => `<li>${entry.name}: Score ${entry.score.toFixed(1)}/10 | Winnings $${entry.winnings}</li>`).join('') +
-    "</ol>";
+  leaderboardDiv.innerHTML = ""; // Clear previous entries
+
+  // Add the header back safely
+  const header = document.createElement("h3");
+  header.textContent = "Leaderboard";
+  leaderboardDiv.appendChild(header);
+
+  const ol = document.createElement("ol");
+
+  leaderboard.forEach(entry => {
+      // Create a new list item element
+      const li = document.createElement("li");
+
+      // Set its content as plain text. This is the security fix!
+      li.textContent = `${entry.name}: Score ${entry.score.toFixed(1)}/10 | Winnings $${entry.winnings}`;
+
+      // Add the safe element to the list
+      ol.appendChild(li);
+  });
+
+  leaderboardDiv.appendChild(ol);
 }
 
 spinButton.addEventListener("click", async () => {
