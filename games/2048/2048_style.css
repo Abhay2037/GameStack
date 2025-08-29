@@ -51,13 +51,6 @@ h1 {
     background: orange;
 }
 
-#leaderboard {
-    text-align: center;
-    color: white;
-    margin-top: 20px;
-}
-
-
 .cell[data-value="2"]    { background-color: #eee4da; }
 .cell[data-value="4"]    { background-color: #ede0c8; }
 .cell[data-value="8"]    { background-color: #f2b179; }

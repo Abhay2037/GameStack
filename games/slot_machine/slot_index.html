@@ -19,9 +19,13 @@
      <label for="betAmount">Bet Amount ($): </label>
      <input type="number" id="betAmount" min="200" value="200" step="10" />
      <button id="spin">SPIN</button>
+     <button id="allInBtn">ALL-IN</button>
     </div>
-    <button id="deposit">DEPOSIT</button>
-    <button id="withdraw">WITHDRAW</button>
+    <div class="game-controls">
+        <button id="deposit">DEPOSIT</button>
+        <button id="withdraw">WITHDRAW</button>
+        <button id="rulesBtn">Show Rules</button>
+    </div>
 
     <div id="message"></div>
 
@@ -29,11 +33,40 @@
       <p>Total Spins: <span id="totalSpins">0</span></p>
       <p>Jackpots: <span id="jackpots">0</span></p>
       <p>Balance: $<span id="balance">10000</span></p>
-      <p>Winnings: $<span id="totalWinnings">0</span></p>
-      <p>Losses: $<span id="totalLosses">0</span></p>
+      <p>Session Winnings: $<span id="totalWinnings">0</span></p>
     </div>
   </div>
-  <div id="leaderboard"></div>
+
+  <div id="rulesModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <h2>Game Rules & Pay Table</h2>
+      <h3>Gameplay</h3>
+      <ul>
+        <li>Minimum bet is $200.</li>
+        <li>You have a maximum of 30 spins.</li>
+        <li>You can deposit $1000 up to 3 times.</li>
+        <li>You cannot withdraw until all 30 spins are complete.</li>
+      </ul>
+      <h3>Paylines</h3>
+      <p>Wins are counted on 3 horizontal lines: top, middle, and bottom.</p>
+      
+      <h3>Special Symbols</h3>
+      <ul>
+        <li>💎 (WILD): Substitutes for any symbol except SCATTER.</li>
+        <li>💰 (SCATTER): Pays out if 2 or more appear anywhere on the reels.</li>
+      </ul>
+      <h3>Payouts (Multiplier x Bet)</h3>
+      <ul>
+        <li>💰 x3: 50x | 💰 x2: 10x</li>
+        <li>7️⃣ x3: 20x | 7️⃣ x2: 5x</li>
+        <li>🍓 x3: 15x</li>
+        <li>🍉 x3: 10x</li>
+        <li>🍒 x2: 2x</li>
+      </ul>
+    </div>
+  </div>
+
   <script src="slot_script.js"></script>
 </body>
 </html>

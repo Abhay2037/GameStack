@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dual Snakes</title>
+    <link rel="stylesheet" href="ds_style.css">
+</head>
+<body>
+    <h1>Dual Snakes</h1>
+
+    <div id="mainMenu">
+        <div class="menu-section">
+            <h3>Single Player</h3>
+            <button id="easyBtn">Easy</button>
+            <button id="mediumBtn">Medium</button>
+            <button id="hardBtn">Hard</button>
+        </div>
+        <div class="menu-section">
+            <h3>Multiplayer</h3>
+            <button id="dualPlayerBtn">Dual Player</button>
+        </div>
+    </div>
+
+    <div id="gameContainer">
+        <div class="scores">
+            <p>Player 1 (WASD): <span id="score1">0</span></p>
+            <p>Player 2 (AI/Arrows): <span id="score2">0</span></p>
+        </div>
+        <div id="canvas-wrapper">
+            <canvas id="gameCanvas" width="600" height="600"></canvas>
+            <div id="countdownOverlay" class="hidden">
+                <span id="countdownTimer">3</span>
+            </div>
+        </div>
+        <div id="message"></div>
+    </div>
+
+    <script src="ds_script.js"></script>
+</body>
+</html>
